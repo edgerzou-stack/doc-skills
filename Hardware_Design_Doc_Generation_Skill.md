@@ -38,6 +38,18 @@
     *   在图表开头必须注入配置项：`%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 80, 'rankSpacing': 150, 'curve': 'bumpX'}}}%%`。拉大间距并使用平滑贝塞尔曲线。
     *   同样应用 SVG 防压缩规则，设置 `min-width: 1200px !important` 和外层容器的 `justify-content: flex-start`，确保图表庞大且舒展。
 
+### 3.4 Mermaid 陷阱规避与排版进阶策略 (Mermaid Traps & Advanced Layouts)
+在通过 Mermaid 绘制复杂硬件流水线时，极易踩中词法解析器崩溃或布局失控的雷区，必须严格遵守以下排版与语法纪律：
+*   **致命陷阱：Syntax error in text (特殊字符引发的渲染崩溃)**：
+    *   **痛点**：当节点文本或子图 (subgraph) 标题中出现空格、括号 `()`、冒号 `:`、斜杠 `/`、破折号 `-` 或 HTML 换行符 `<br>` 时，会导致 Mermaid (尤其是 10.x 版本) 解析引擎直接崩溃，弹出炸弹图标。
+    *   **强制规避**：**必须**为所有带文字的节点和子图标题加上**双引号 `""`** 进行包裹转义。例如：错误写法 `A[文本(包含特殊)]` / `subgraph S1 [带 空格 标题]`，**正确写法** `A["文本(包含特殊)"]` / `subgraph S1 ["带 空格 标题"]`。
+*   **排版进阶 1：消除多子图引起的垂直留白 (Row-by-Row 水平流)**：
+    *   **痛点**：当你想把两个步骤（如 Luma 流水线和 Chroma 流水线）分为上下两行，但每行内部节点**横向**展开时，如果直接用线连接 `子图A的节点 -> 子图B的节点`，Mermaid 会强行将内部节点拉扯成一条丑陋的垂直长线，无视内部的 `direction LR`。
+    *   **解决方案 (外竖内横隔离法)**：外层使用 `flowchart TB`，每个 `subgraph` 内部使用 `direction LR`。**最核心一步**：绝不能让连线跨越子图内部的节点！应将跨图的依赖线连在外部大框上（例如 `Row1 -.-> Row2`），以此彻底切断布局引擎的跨图干涉，完美实现上下双行、内部横向展开的紧凑排版。
+*   **排版进阶 2：并排对比面板 (Side-by-Side Columns)**：
+    *   **需求**：需要将两种流水线架构（如全串行 vs MD并发）作为两个垂直的长面板，**左右并排**放置以缩小垂直纵深。
+    *   **解决方案 (外横内竖法)**：外层使用 `flowchart LR` 将两大赛道左右并排铺开，而在每个 `subgraph` 内部强制使用 `direction TD` 让具体步骤从上往下流转。由此得到两个优雅的并肩长列。
+
 ## 4. 硬件代码与高亮 (RTL Code & Syntax Highlighting)
 *   **引擎**：集成 `highlight.js`，并必须显式加载 `verilog.min.js` 语言包。
 *   **生命周期**：确保 HTML 中的 JS 加载顺序：`核心包 -> verilog语言包 -> hljs.highlightAll()`。HTML 标签必须使用 `<code class="language-verilog">`（注意不是 systemverilog，引擎只认 verilog）。
