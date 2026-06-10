@@ -65,5 +65,14 @@
 *   **正则表达式与锚点**：脚本需具备自动扫描全文标题、生成侧边栏锚点并注入 HTML 对应 `id` 的能力。
 *   **特殊块拦截**：脚本应当能够识别特定的标记（如 `[GANTT_START]`、`[SVG_DATAPATH_START]`），并在这些位置注入高阶可视化组件的代码。
 
+## 6. 侧边栏目录与弹性布局 (Sidebar TOC & Flexbox Layout)
+*   **布局重构**：抛弃传统的单栏居中流式布局。在全局 `body` 使用 `display: flex; height: 100vh; overflow: hidden;`，将页面切分为左侧固定的 `.sidebar` 和右侧滚动的 `.main-content`，以匹配专业级 Dashboard 体验。
+*   **目录自动生成 (Vanilla JS)**：
+    *   绝不手动编写锚点目录。必须在 HTML 底部注入 Vanilla JS 脚本。
+    *   脚本逻辑：使用 `document.querySelectorAll('h2, h3')` 提取大纲，为每个 DOM 节点赋予唯一 `id`，然后在 `.sidebar` 中动态生成包裹 `<a>` 标签的 `<li>` 列表。
+*   **交互联动**：
+    *   **平滑跳转**：为 TOC 链接绑定 `click` 事件并调用 `scrollTo({ behavior: 'smooth' })`。
+    *   **滚动监听 (Scroll Tracking)**：监听右侧主内容的 `scroll` 事件，动态计算当前到达的标题位置，实时高亮左侧 TOC 中的对应链接 (`.active` 样式)。
+
 ---
 **使用说明**：未来让 AI 协助撰写新的芯片模块详细设计说明书时，可直接将此文档内容喂给 AI，并下达指令：“*请按照《Hardware Architecture Dashboard Generation Skill》的标准，为我解析并生成新模块的设计文档。*”
