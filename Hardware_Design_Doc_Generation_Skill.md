@@ -74,5 +74,13 @@
     *   **平滑跳转**：为 TOC 链接绑定 `click` 事件并调用 `scrollTo({ behavior: 'smooth' })`。
     *   **滚动监听 (Scroll Tracking)**：监听右侧主内容的 `scroll` 事件，动态计算当前到达的标题位置，实时高亮左侧 TOC 中的对应链接 (`.active` 样式)。
 
+## 7. 核心突破机制的视觉强调 (Critical Mechanism Highlighting)
+*   **痛点与突破口分离**：对于架构中最核心的“作弊/解耦”机制（例如：为了流水线解耦，强行使用**原始像素**替代**重建像素**来进行模式粗选），这种颠覆常规理论的突破点，必须与普通的说明文字拉开视觉差距。
+*   **强制使用预警/强提醒样式 (`.critical-alert`)**：
+    *   绝不可使用普通的 `<div class="highlight">`（那只是用于补充说明或知识普及）。
+    *   必须使用带醒目边框、刺眼底色和特殊字体的 `.critical-alert` 样式（如红色左边框、淡红底色）。
+    *   内部的核心关键字词，还要进一步嵌套 `<span style="background: #fecaca; padding: 2px 6px; border-radius: 4px; color: #991b1b; font-weight: 700;">` 这种极其抢眼的底色高亮。
+    *   **目的**：让硬件架构师或算法人员在快速扫视文档时，第一眼就能被这个极其重要的架构魔法设计“刺瞎”，确保知识传达零遗漏。
+
 ---
 **使用说明**：未来让 AI 协助撰写新的芯片模块详细设计说明书时，可直接将此文档内容喂给 AI，并下达指令：“*请按照《Hardware Architecture Dashboard Generation Skill》的标准，为我解析并生成新模块的设计文档。*”
