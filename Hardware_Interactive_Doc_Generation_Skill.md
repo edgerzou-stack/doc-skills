@@ -413,6 +413,27 @@ When `LR` alone isn't enough, or when it causes new problems (like shrinking the
 4. **Subgraphs for Tight Grouping:** Use subgraphs to cluster related nodes tightly. Mermaid's layout engine handles subgraphs much more efficiently in `LR` mode than in `TD` mode.
 5. **Concise Node Text:** Use short, punchy node labels. Let the surrounding text explain the heavy details.
 
+---
+## 5. 附录：实战排版避坑与血泪教训 (Troubleshooting & Pitfalls Summary)
+
+在实际的交互式文档排版中，Mermaid 的渲染引擎与 CSS 的缩放机制存在严重的对抗效应。以下是多次踩坑后总结的实战教训：
+
+### 陷阱一：字号设置了 32px，但渲染出来依然比芝麻还小
+*   **原因**：仅仅在 Mermaid 中设置 `fontSize: 32px` 会导致内部计算的 SVG 物理宽度极大。如果这是一张极长的单行横向 (LR) 流水线图，外层浏览器 CSS 设置的 `max-width: 100%` 会按比例将其极其严重地缩小（例如从 4000px 缩放到 1000px）。这种缩小是**物理缩小**，导致原本 32px 的字号在屏幕上变成了 8px。
+*   **对策**：触发了“底线字号约束”（字号不得小于正文）。**必须**将极长的横向流水线折叠为**多行横向布局 (TB 嵌套 LR 子图)**。物理宽度减半后，被缩小的比例就会大幅下降，字号得以保全。
+
+### 陷阱二：图表字号依然偏小，且左右存在极其巨大的白色无效间距
+*   **原因**：图表本身节点较少，Mermaid 算出的 SVG 物理宽度没有达到屏幕宽度。在只有 `max-width: 100%` 的情况下，SVG 保持了原尺寸并居中，没有撑满全屏，导致出现巨大的白边，错失了放大字号的良机。
+*   **对策**：漏加了**强制拉伸指令**。必须在 CSS 中确保：`.mermaid { width: 100%; }` 且 `.mermaid svg { width: 100% !important; max-width: none !important; }`。通过 CSS 将 SVG 暴力拉宽到屏幕边界，内部字号会随之等比极限放大，瞬间充满视觉冲击力。
+
+### 陷阱三：连线腰斩标题、节点框相互重叠、严重穿模
+*   **原因**：在拉满字号的同时，为了让图表更紧凑，过度压低了 `nodeSpacing` 和 `rankSpacing`（例如设为 20）。导致 Mermaid 排版引擎的几何安全空间被榨干，连线无路可走只能强行穿模。同时，如果在局部 `subgraph` 内部去定义跨越到外部节点的连线，也会导致引擎走线逻辑彻底错乱。
+*   **对策**：当使用大字号时，`nodeSpacing` 和 `rankSpacing` 绝对不可低于 40~60 这一安全区间。**跨图连线必须统一写在全局最外层**，绝对禁止在子图块内跨域画线。
+
+### 陷阱四：跨子图连线 (Subgraph-to-Subgraph) 导致箭头悬空变形
+*   **原因**：当使用 `bumpX` 等平滑曲线连接两个大 `subgraph` 时，Mermaid 10.x 的 marker-end (箭头) 锚点计算存在 Bug，会导致箭头飞出边框或严重扭曲。
+*   **对策（架构妥协）**：如果改为 Node-to-Node（节点到节点）连线虽然能修复箭头 Bug，但这会极其严重地拉扯节点位置，**彻底摧毁 Subgraph 内心原有的完美布局美感**。因此，在宏观架构图中，宁愿容忍箭头的些许畸变，也**必须优先保全整体的布局结构图不变**。不要为了修一个箭头而去毁掉整个图表的排版。
+
 By strictly adhering to these layout and readability rules, we maintain a crisp, dense, and professional "zero-drag" documentation UI.
 
 
