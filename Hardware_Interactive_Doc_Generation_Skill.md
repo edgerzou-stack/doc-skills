@@ -373,86 +373,259 @@
 **“大字号、满屏宽、零拖拽”**的终极图表艺术，核心在于打破一切绝对尺寸的枷锁，全面拥抱**相对比例（ViewBox / 100%）**、**最优的空间排列方向（LR 替代 TD）**，以及**针对数据密度的降级策略（动态表格尺寸）**。以后所有硬件设计文档的图表，都应以这三个原则为绝对基准。
 
 
-# Mermaid Whitespace Optimization Skill
+# Python + Graphviz 架构图生成技能指南 (Python + Graphviz Diagram Generation Skill)
 
-When designing hardware architecture documentation, screen real estate is precious. Excessive vertical whitespace forces the user to scroll unnecessarily and breaks the "zero-drag" philosophy of a good hardware dashboard.
-
-This skill provides rules for generating beautiful, responsive, and readable interactive hardware documentation using HTML, CSS, JavaScript, and Diagramming Engines.
-
-## Core Diagramming Strategy: The Python + Graphviz Paradigm
-
-For complex hardware architecture diagrams (such as RDO/IPD pipelines), **we have officially deprecated Mermaid in favor of a Python + Graphviz strategy**.
-
-**The New Workflow:**
-1. **Script as Source of Truth**: For every complex diagram, write a python script (e.g., `scripts/generate_diagram_X.py`) using the `graphviz` python library.
-2. **LLM Generation**: The AI agent will write the python script to accurately route nodes, define labels, and set colors/styles.
-3. **SVG Export**: Run the script to generate a static, highly-optimized `.svg` file into an `assets/` directory.
-4. **HTML Embedding**: Embed the SVG directly into the HTML using `<img src="assets/diagram_X.svg" style="min-width: 100%; max-width: none;">` inside a horizontally scrollable container.
-
-**Why we abandoned Mermaid for complex diagrams:**
-- Mermaid's DAG layout engine (`dagre`/`elk`) struggles severely with horizontal (`LR`) layout logic, leading to crossed lines and overlapping nodes ("穿模现象").
-- Mermaid's auto-shrinking behavior (`max-width: 100%`) actively fights against large font sizes, requiring ugly hacks (`useMaxWidth: false`) that still often fail in complex container layouts.
-- Graphviz provides infinite aesthetic freedom (custom HTML-like node tables, exact spline routing) and completely bypasses frontend rendering conflicts.
-
-> **Note on Mermaid:** You may still use Mermaid ONLY for extremely simple, linear sequence diagrams or state machines where layout complexity is zero. For everything else, use Python + Graphviz.
-
-## Part 1: Interactive Dashboard Layout (HTML/CSS)
-
-## 📏 Core Strategy: Horizontal Over Vertical (`LR` vs `TD`)
-
-The default rendering direction for most flowcharts is Top-Down (`TD`). While this works for simple trees, linear hardware pipelines and multi-stage decision loops quickly become extremely tall and narrow, leaving massive amounts of blank white space on the left and right sides of modern wide-screen monitors.
-
-### ❌ The Problem: `graph TD`
-Top-Down graphs stack nodes vertically.
-```mermaid
-graph TD
-    A[Start] --> B[Process Step 1]
-    B --> C[Process Step 2]
-    C --> D[End]
-```
-*Result:* A tall, narrow block that wastes horizontal space.
-
-### ✅ The Solution: `graph LR`
-Whenever possible, force the rendering direction to Left-Right (`LR`). This takes advantage of the horizontal aspect ratio of modern displays.
-```mermaid
-graph LR
-    A[Start] --> B[Process Step 1]
-    B --> C[Process Step 2]
-    C --> D[End]
-```
-*Result:* A compact, easy-to-scan horizontal flow that integrates beautifully into standard paragraph text without causing huge page breaks.
-
-## 🛠️ Advanced Whitespace & Readability Constraints
-
-When `LR` alone isn't enough, or when it causes new problems (like shrinking the diagram to fit the page), apply the following strict constraints to maintain perfect readability and zero wasted space:
-
-1. **Multi-Row Horizontal Layouts:** If a single `LR` chain is too long, Mermaid will automatically shrink the entire diagram to fit the screen width, resulting in unreadably tiny fonts. **Rule:** If a horizontal flowchart becomes too small, you must break it into multiple rows by using a `graph TD` root and embedding `direction LR` inside horizontal `subgraph`s.
-2. **Strict 30px Minimum Font Size Constraint:** The text inside any flowchart must be incredibly legible and dominant on the screen. **Rule:** You MUST set the global minimum font size to `30px` and entirely disable Mermaid's auto-shrinking behavior using the global initialization block in the `<head>` of the HTML: `mermaid.initialize({ useMaxWidth: false, themeVariables: { fontSize: '30px' }, flowchart: { nodeSpacing: 50, rankSpacing: 70 } });`. By setting `useMaxWidth: false`, the SVG will render at its true physical size. If the resulting diagram is wider than the screen, it will overflow and generate a horizontal scrollbar, which guarantees the font will NEVER scale down below 30px.
-3. **Mandatory Captions:** Every diagram must be explicitly labelled. **Rule:** You must place a descriptive caption immediately below the Mermaid block using `<div class="diagram-caption">图 X：...</div>`. This ensures the technical context is preserved even if the diagram is rendered in isolation.
-4. **Subgraphs for Tight Grouping:** Use subgraphs to cluster related nodes tightly. Mermaid's layout engine handles subgraphs much more efficiently in `LR` mode than in `TD` mode.
-5. **Concise Node Text:** Use short, punchy node labels. Let the surrounding text explain the heavy details.
+本技能指南总结了在硬件架构文档中，使用 **Python + Graphviz** 替代 Mermaid 生成高质量架构图的完整方法论与实战避坑经验。
 
 ---
-## 5. 附录：实战排版避坑与血泪教训 (Troubleshooting & Pitfalls Summary)
 
-在实际的交互式文档排版中，Mermaid 的渲染引擎与 CSS 的缩放机制存在严重的对抗效应。以下是多次踩坑后总结的实战教训：
+## 1. 核心战略决策：为什么弃用 Mermaid
 
-### 陷阱一：字号设置了 30px，但渲染出来依然比芝麻还小
-*   **原因**：仅仅在 Mermaid 中设置 `fontSize: 30px` 是不够的，因为 Mermaid 默认带有响应式设计。如果这是一张极长的横向流水线图，它的物理宽度会远超屏幕。此时 Mermaid 默认注入的 `width="100%"` 会被外层 CSS 的 `max-width: 100%` 强行约束，将一整张 4000px 的图强制按比例“压缩”到屏幕内（如 1000px）。这种等比例物理缩小会导致原本 30px 的字号在屏幕上看起来变成了 8px。
-*   **对策（彻底解决）**：必须在全局初始化中加入核心指令：`mermaid.initialize({ useMaxWidth: false })`！这会彻底关闭 Mermaid 的响应式自适应缩小功能。同时在 CSS 中配合 `.mermaid svg { min-width: 100% !important; max-width: none !important; }`，允许图表横向溢出屏幕并产生滚动条。只有允许图表尺寸突破屏幕边界，才能真正在物理上保全 30px 的震撼大字号！
+在经过大量实战迭代后，我们**正式废弃 Mermaid 作为复杂硬件架构图的渲染引擎**。
 
-### 陷阱二：图表字号依然偏小，且左右存在极其巨大的白色无效间距
-*   **原因**：图表本身节点较少，Mermaid 算出的 SVG 物理宽度没有达到屏幕宽度。在只有 `max-width: 100%` 的情况下，SVG 保持了原尺寸并居中，没有撑满全屏，导致出现巨大的白边，错失了放大字号的良机。
-*   **对策**：漏加了**强制拉伸指令**。必须在 CSS 中确保：`.mermaid { width: 100%; }` 且 `.mermaid svg { width: 100% !important; max-width: none !important; }`。通过 CSS 将 SVG 暴力拉宽到屏幕边界，内部字号会随之等比极限放大，瞬间充满视觉冲击力。
+### Mermaid 的致命缺陷（实战踩坑总结）
 
-### 陷阱三：连线腰斩标题、节点框相互重叠、严重穿模
-*   **原因**：在拉满字号的同时，为了让图表更紧凑，过度压低了 `nodeSpacing` 和 `rankSpacing`（例如设为 20）。导致 Mermaid 排版引擎的几何安全空间被榨干，连线无路可走只能强行穿模。同时，如果在局部 `subgraph` 内部去定义跨越到外部节点的连线，也会导致引擎走线逻辑彻底错乱。
-*   **对策**：当使用大字号时，`nodeSpacing` 和 `rankSpacing` 绝对不可低于 40~60 这一安全区间。**跨图连线必须统一写在全局最外层**，绝对禁止在子图块内跨域画线。
+| 缺陷 | 具体表现 |
+|------|---------|
+| **DAG 布局引擎失控** | Mermaid 的 `dagre`/`elk` 在横向 (`LR`) 布局中经常产生交叉连线和节点重叠（"穿模现象"） |
+| **响应式缩放对抗** | Mermaid 默认注入 `max-width: 100%`，会将 4000px 宽的图强制压缩至屏幕宽度，导致 30px 字号在屏幕上看起来只有 8px |
+| **hack 补丁层层叠加** | 为了对抗缩放，需要 `useMaxWidth: false` + CSS `min-width` + `!important` 等一系列脆弱的 hack，且互相冲突 |
+| **Flexbox 容器陷阱** | 将 Mermaid SVG 放在 `display: flex` 容器中时，`flex-shrink: 1` 会无视所有 CSS 覆写，强行将图压缩 |
+| **字号与间距不可兼得** | 大字号（≥28px）需要 `nodeSpacing ≥ 40`，但拉大间距又会导致图表物理宽度暴增，触发缩放对抗循环 |
 
-### 陷阱四：跨子图连线 (Subgraph-to-Subgraph) 导致箭头悬空变形
-*   **原因**：当使用 `bumpX` 等平滑曲线连接两个大 `subgraph` 时，Mermaid 10.x 的 marker-end (箭头) 锚点计算存在 Bug，会导致箭头飞出边框或严重扭曲。
-*   **对策（架构妥协）**：如果改为 Node-to-Node（节点到节点）连线虽然能修复箭头 Bug，但这会极其严重地拉扯节点位置，**彻底摧毁 Subgraph 内心原有的完美布局美感**。因此，在宏观架构图中，宁愿容忍箭头的些许畸变，也**必须优先保全整体的布局结构图不变**。不要为了修一个箭头而去毁掉整个图表的排版。
+### Python + Graphviz 的绝对优势
 
-By strictly adhering to these layout and readability rules, we maintain a crisp, dense, and professional "zero-drag" documentation UI.
+- **精确的底层渲染控制**：Graphviz 的 `dot` 引擎直接计算节点坐标，不存在前端 CSS 对抗问题
+- **原生 SVG 输出**：生成的 SVG 是纯粹的矢量图，浏览器用 `max-width: 100%` 即可完美自适应
+- **字号与布局解耦**：字号在 Graphviz 内部设置，浏览器缩放时等比例保持，不会被 CSS 覆写
+- **分支路由清晰**：`splines='spline'` 使用贝塞尔曲线自动分离重叠的连线
 
+> **Mermaid 保留场景**：仅限于极简单的线性序列图或状态机（节点数 ≤ 5、无分支）。所有复杂流水线、多分支环路图，一律使用 Python + Graphviz。
+
+---
+
+## 2. 标准工作流 (Standard Workflow)
+
+```
+scripts/generate_diagram_X.py  →  python3 运行  →  assets/diagram_X.svg  →  <img> 嵌入 HTML
+```
+
+### 2.1 目录结构规范
+
+```
+project/
+├── index.html
+├── scripts/
+│   └── generate_diagram_8.py
+└── assets/
+    └── diagram_8.svg
+```
+
+### 2.2 HTML 嵌入规范
+
+```html
+<div style="margin: 30px 0; background: #fafafa; padding: 20px;
+            border: 1px solid #eee; border-radius: 8px; text-align: center;">
+    <img src="assets/diagram_X.svg" alt="图表描述"
+         style="max-width: 100%; height: auto; display: inline-block;">
+</div>
+<div class="diagram-caption">图 X：图表标题</div>
+```
+
+**关键 CSS 规则：**
+- ✅ `max-width: 100%` — 让 SVG 自适应缩放，永远不超出屏幕
+- ✅ `height: auto` — 保持宽高比
+- ❌ 绝对不要用 `display: flex` 包裹 — Flexbox 的 `flex-shrink` 会强制压缩图片
+- ❌ 绝对不要用 `min-width: 100%; max-width: none` — 会产生横向滚动条
+- ❌ 绝对不要用 `overflow-x: auto` — 禁止横向滚动条出现
+
+---
+
+## 3. Graphviz 排版黄金法则 (Layout Golden Rules)
+
+### 3.1 布局方向选择
+
+| 场景 | 推荐方向 | 理由 |
+|------|---------|------|
+| 线性流水线（≤8 节点） | `rankdir='LR'` | 横向排布，充分利用宽屏 |
+| 超长流水线（>8 节点） | `rankdir='LR'` + 缩短标签 | 压缩宽度比折叠更清晰 |
+| 多层级架构树 | `rankdir='TB'` | 纵向层级更直观 |
+
+> **核心原则：优先使用 LR 横向布局。** 当横向过宽时，**缩短节点标签**（用缩写如 `T/Q`、`IQ/IT`、`Recon`）而不是折叠路径。折叠会导致连线交叉、阅读路径混乱。
+
+### 3.2 字号与间距的最佳平衡
+
+在 `max-width: 100%` 自适应缩放的前提下，**字体在屏幕上的视觉大小 = Graphviz 字号 ÷ SVG 总宽度 × 屏幕宽度**。因此：
+
+- **要让字体看起来更大，核心策略是压缩 SVG 总宽度**，而不是无限增大字号
+- 节点标签用缩写、减少 margin/nodesep/ranksep，都能有效缩窄 SVG
+
+**推荐参数组合（LR 横向流水线）：**
+
+```python
+# 全局布局
+dot.attr(rankdir='LR', splines='spline', nodesep='0.4', ranksep='0.5', pad='0.2')
+
+# 子图标题
+fontsize='22'
+
+# 节点字号（核心！）
+fontsize='20', margin='0.15,0.08'
+
+# 边标签字号
+fontsize='16'
+```
+
+### 3.3 节点标签缩写原则
+
+| 原始标签 | 缩写标签 | 技巧 |
+|---------|---------|------|
+| `1. IPD 生成预测块` | `1. IPD\n预测块` | 用换行替代长横排 |
+| `2. 变换与量化 (T/Q)` | `2. T/Q` | 用业界通用缩写 |
+| `4. 反量化与反变换 (IQ/IT)` | `4. IQ/IT` | 同上 |
+| `5. 生成重建块 (Recon)` | `5. Recon\n重建块` | 英文缩写 + 中文注释 |
+| `6. 计算失真 D (SAD/SSE)` | `6. 失真D\n(SAD/SSE)` | 去掉"计算"等动词 |
+
+### 3.4 连线样式规范
+
+```python
+# 主脊椎：实线 + 高权重（强制对齐）
+c.edge('IPD', 'Sub', weight='10')
+
+# 数据输入：虚线（表示外部数据流入）
+c.edge('Orig', 'Sub', style='dashed')
+
+# 旁路分支：虚线（表示副产物/反馈）
+c.edge('TQ', 'Rate', style='dashed')
+```
+
+---
+
+## 4. 架构图结构设计原则 (Architecture Design Principles)
+
+### 4.1 输入数据独立成簇
+
+所有外部输入必须用 `cluster` 子图隔离，与主处理环路在视觉上明确分离：
+
+```python
+with c.subgraph(name='cluster_Inputs') as ci:
+    ci.attr(label='输入', style='dashed, rounded', color='#999999')
+    ci.node('Mode', '候选模式')
+    ci.node('Orig', '原始像素')
+```
+
+### 4.2 主脊椎必须笔直
+
+使用 `weight='10'` 强制主环路中的所有边保持对齐，形成一条清晰可读的主干线：
+
+```python
+c.edge('IPD', 'Sub', weight='10')
+c.edge('Sub', 'TQ', weight='10')
+# ... 一路到终点
+```
+
+### 4.3 分支通路清晰可见
+
+- 每条分支使用 `dashed` / `dotted` 线型与主脊椎区分
+- 使用 `splines='spline'`（贝塞尔曲线），引擎会自动将重叠的平行线弹开
+- **绝对禁止** 使用 `splines='ortho'`（正交直角线）——多条平行线共用通道时必然重叠
+
+### 4.4 色彩编码系统
+
+```python
+# 预测模块 — 冷色（蓝）
+fillcolor='#e1f5fe', color='#0288d1'
+
+# 变换/量化模块 — 暖色（橙）
+fillcolor='#fff3e0', color='#f57c00'
+
+# 重建模块 — 生命色（绿）
+fillcolor='#e8f5e9', color='#2e7d32'
+
+# 决策节点 — 警示色（粉红）
+fillcolor='#fce4ec', color='#c2185b'
+
+# 运算节点（相加/相减） — 中性色（紫）
+fillcolor='#ede7f6', color='#7e57c2'
+```
+
+---
+
+## 5. 实战避坑血泪总结 (Pitfalls & Lessons Learned)
+
+### 陷阱一：Flexbox 容器偷偷压缩 SVG
+
+- **症状**：Python 脚本生成了 3500px 宽的大图，HTML 中也设了 `max-width: none`，但图还是被压扁
+- **根因**：外层 `div` 使用了 `display: flex`，Flexbox 子元素默认 `flex-shrink: 1`
+- **对策**：绝对不要用 `display: flex` 包裹 `<img>`。用 `text-align: center` 实现居中
+
+### 陷阱二：字号设到 30px 但屏幕上依然很小
+
+- **症状**：Graphviz fontsize 设成了 30，但网页上字体还是很小
+- **根因**：fontsize=30 使得 SVG 物理宽度暴增，被 `max-width: 100%` 等比缩放后字体也等比缩小
+- **对策**：**缩短节点标签、压缩间距来降低 SVG 总宽度**，而不是盲目加大字号
+
+### 陷阱三：正交连线 (ortho) 导致箭头严重交叠
+
+- **症状**：多条从同一节点出发的连线完全重叠成一条线
+- **根因**：`splines='ortho'` 强制走直角，平行线无法分离
+- **对策**：改用 `splines='spline'`（贝塞尔曲线），引擎自动用弧度将重叠线分开
+
+### 陷阱四：折叠路径导致阅读混乱
+
+- **症状**：为了压缩宽度把主环路折成多行，结果连线到处飞
+- **根因**：Graphviz 的 `rank='same'` 无法精确控制行内排序和跨行连线走向
+- **对策**：**不要折叠。** 保持单条直线主脊椎，通过缩短标签来压缩宽度
+
+---
+
+## 6. 标准参考模板 (Reference Template)
+
+```python
+import graphviz
+import os
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+os.chdir(script_dir)
+
+dot = graphviz.Digraph(comment='图表名称', format='svg', engine='dot')
+dot.attr(rankdir='LR', splines='spline',
+         nodesep='0.4', ranksep='0.5', pad='0.2',
+         fontname='Helvetica, Arial, sans-serif')
+
+with dot.subgraph(name='cluster_Main') as c:
+    c.attr(label='主环路标题', style='filled, rounded',
+           fillcolor='#ffffe0', color='#fbc02d', penwidth='2',
+           fontname='Helvetica, Arial, sans-serif', fontsize='22', margin='12')
+    
+    c.attr('node', shape='box', style='filled, rounded',
+           fontname='Helvetica, Arial, sans-serif', fontsize='20', margin='0.15,0.08')
+    c.attr('edge', fontname='Helvetica, Arial, sans-serif', fontsize='16', penwidth='1.8')
+    
+    # 输入簇独立
+    with c.subgraph(name='cluster_Inputs') as ci:
+        ci.attr(label='输入', style='dashed, rounded', color='#999999', fontsize='16')
+        ci.node('In1', '输入1')
+        ci.node('In2', '输入2')
+    
+    # 主脊椎节点 — 用缩写标签
+    c.node('A', '1. 步骤A', fillcolor='#e1f5fe', color='#0288d1')
+    c.node('B', '2. 步骤B', fillcolor='#fff3e0', color='#f57c00')
+    c.node('C', '3. 步骤C', fillcolor='#e8f5e9', color='#2e7d32')
+    
+    # 主脊椎边 — weight=10 强制对齐
+    c.edge('A', 'B', weight='10')
+    c.edge('B', 'C', weight='10')
+    
+    # 输入边 — 虚线
+    c.edge('In1', 'A')
+    c.edge('In2', 'B', style='dashed')
+
+output_path = os.path.join(os.path.dirname(script_dir), 'assets', 'diagram_name')
+dot.render(output_path, cleanup=True)
+```
+
+---
+
+**使用说明**：在为硬件架构文档绘制任何复杂图表时，直接遵循本指南的工作流和参数规范，可在一次迭代内产出"大字号、无滚动条、分支清晰"的工业级架构图。
 
