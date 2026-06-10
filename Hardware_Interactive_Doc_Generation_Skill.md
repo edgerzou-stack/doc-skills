@@ -377,7 +377,26 @@
 
 When designing hardware architecture documentation, screen real estate is precious. Excessive vertical whitespace forces the user to scroll unnecessarily and breaks the "zero-drag" philosophy of a good hardware dashboard.
 
-This skill guide outlines the best practices for minimizing whitespace in Mermaid diagrams.
+This skill provides rules for generating beautiful, responsive, and readable interactive hardware documentation using HTML, CSS, JavaScript, and Diagramming Engines.
+
+## Core Diagramming Strategy: The Python + Graphviz Paradigm
+
+For complex hardware architecture diagrams (such as RDO/IPD pipelines), **we have officially deprecated Mermaid in favor of a Python + Graphviz strategy**.
+
+**The New Workflow:**
+1. **Script as Source of Truth**: For every complex diagram, write a python script (e.g., `scripts/generate_diagram_X.py`) using the `graphviz` python library.
+2. **LLM Generation**: The AI agent will write the python script to accurately route nodes, define labels, and set colors/styles.
+3. **SVG Export**: Run the script to generate a static, highly-optimized `.svg` file into an `assets/` directory.
+4. **HTML Embedding**: Embed the SVG directly into the HTML using `<img src="assets/diagram_X.svg" style="min-width: 100%; max-width: none;">` inside a horizontally scrollable container.
+
+**Why we abandoned Mermaid for complex diagrams:**
+- Mermaid's DAG layout engine (`dagre`/`elk`) struggles severely with horizontal (`LR`) layout logic, leading to crossed lines and overlapping nodes ("穿模现象").
+- Mermaid's auto-shrinking behavior (`max-width: 100%`) actively fights against large font sizes, requiring ugly hacks (`useMaxWidth: false`) that still often fail in complex container layouts.
+- Graphviz provides infinite aesthetic freedom (custom HTML-like node tables, exact spline routing) and completely bypasses frontend rendering conflicts.
+
+> **Note on Mermaid:** You may still use Mermaid ONLY for extremely simple, linear sequence diagrams or state machines where layout complexity is zero. For everything else, use Python + Graphviz.
+
+## Part 1: Interactive Dashboard Layout (HTML/CSS)
 
 ## 📏 Core Strategy: Horizontal Over Vertical (`LR` vs `TD`)
 
