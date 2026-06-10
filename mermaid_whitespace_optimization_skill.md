@@ -28,12 +28,14 @@ graph LR
 ```
 *Result:* A compact, easy-to-scan horizontal flow that integrates beautifully into standard paragraph text without causing huge page breaks.
 
-## 🛠️ Advanced Whitespace Constraints
+## 🛠️ Advanced Whitespace & Readability Constraints
 
-When `LR` isn't enough, apply the following constraints to squeeze out every last pixel of wasted space:
+When `LR` alone isn't enough, or when it causes new problems (like shrinking the diagram to fit the page), apply the following strict constraints to maintain perfect readability and zero wasted space:
 
-1. **Subgraphs for Tight Grouping:** Use subgraphs to cluster related nodes tightly. Mermaid's layout engine handles subgraphs much more efficiently in `LR` mode than in `TD` mode.
-2. **Concise Node Text:** Use short, punchy node labels. Avoid writing paragraphs inside the shapes. Let the surrounding HTML/Markdown text explain the heavy details.
-3. **Link Adjustments:** If directional arrows (`-->`) force an awkward layout, you can sometimes use implicit links (`---`) or adjust link lengths to trick the layout engine into a tighter bounding box.
+1. **Multi-Row Horizontal Layouts:** If a single `LR` chain is too long, Mermaid will automatically shrink the entire diagram to fit the screen width, resulting in unreadably tiny fonts. **Rule:** If a horizontal flowchart becomes too small, you must break it into multiple rows by using a `graph TD` root and embedding `direction LR` inside horizontal `subgraph`s.
+2. **Strict Font Size Constraint:** The text inside any flowchart must remain legible. **Rule:** The minimum font size of your flowchart nodes must be strictly greater than or equal to the standard font size of a typical Sequence Diagram (which naturally wraps and scales well). Never allow a graph to compress so much that it becomes harder to read than a standard sequence diagram.
+3. **Mandatory Captions:** Every diagram must be explicitly labelled. **Rule:** You must place a descriptive caption immediately below the Mermaid block using `<div class="diagram-caption">图 X：...</div>`. This ensures the technical context is preserved even if the diagram is rendered in isolation.
+4. **Subgraphs for Tight Grouping:** Use subgraphs to cluster related nodes tightly. Mermaid's layout engine handles subgraphs much more efficiently in `LR` mode than in `TD` mode.
+5. **Concise Node Text:** Use short, punchy node labels. Let the surrounding text explain the heavy details.
 
-By strictly adhering to the `LR` layout rule for all linear or sequential hardware logic, we maintain a crisp, dense, and professional "zero-drag" documentation UI.
+By strictly adhering to these layout and readability rules, we maintain a crisp, dense, and professional "zero-drag" documentation UI.
