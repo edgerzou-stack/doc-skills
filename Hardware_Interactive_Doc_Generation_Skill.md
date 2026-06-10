@@ -408,7 +408,7 @@ graph LR
 When `LR` alone isn't enough, or when it causes new problems (like shrinking the diagram to fit the page), apply the following strict constraints to maintain perfect readability and zero wasted space:
 
 1. **Multi-Row Horizontal Layouts:** If a single `LR` chain is too long, Mermaid will automatically shrink the entire diagram to fit the screen width, resulting in unreadably tiny fonts. **Rule:** If a horizontal flowchart becomes too small, you must break it into multiple rows by using a `graph TD` root and embedding `direction LR` inside horizontal `subgraph`s.
-2. **Strict 30px Minimum Font Size Constraint:** The text inside any flowchart must be incredibly legible and dominant on the screen. **Rule:** You MUST set the global minimum font size to `30px` using the global initialization block in the `<head>` of the HTML: `mermaid.initialize({ themeVariables: { fontSize: '30px' }, flowchart: { nodeSpacing: 50, rankSpacing: 70 } });`. Furthermore, even after CSS `max-width: 100%` scaling, the final rendered font must never appear smaller than the main body text. If an `LR` diagram stretches so wide that it scales down significantly, it is a hard violation and MUST be refactored into a Multi-Row Layout (`TD` root with `LR` subgraphs).
+2. **Strict 30px Minimum Font Size Constraint:** The text inside any flowchart must be incredibly legible and dominant on the screen. **Rule:** You MUST set the global minimum font size to `30px` and entirely disable Mermaid's auto-shrinking behavior using the global initialization block in the `<head>` of the HTML: `mermaid.initialize({ useMaxWidth: false, themeVariables: { fontSize: '30px' }, flowchart: { nodeSpacing: 50, rankSpacing: 70 } });`. By setting `useMaxWidth: false`, the SVG will render at its true physical size. If the resulting diagram is wider than the screen, it will overflow and generate a horizontal scrollbar, which guarantees the font will NEVER scale down below 30px.
 3. **Mandatory Captions:** Every diagram must be explicitly labelled. **Rule:** You must place a descriptive caption immediately below the Mermaid block using `<div class="diagram-caption">图 X：...</div>`. This ensures the technical context is preserved even if the diagram is rendered in isolation.
 4. **Subgraphs for Tight Grouping:** Use subgraphs to cluster related nodes tightly. Mermaid's layout engine handles subgraphs much more efficiently in `LR` mode than in `TD` mode.
 5. **Concise Node Text:** Use short, punchy node labels. Let the surrounding text explain the heavy details.
@@ -419,8 +419,8 @@ When `LR` alone isn't enough, or when it causes new problems (like shrinking the
 在实际的交互式文档排版中，Mermaid 的渲染引擎与 CSS 的缩放机制存在严重的对抗效应。以下是多次踩坑后总结的实战教训：
 
 ### 陷阱一：字号设置了 30px，但渲染出来依然比芝麻还小
-*   **原因**：仅仅在 Mermaid 中设置 `fontSize: 30px` 会导致内部计算的 SVG 物理宽度极大。如果这是一张极长的单行横向 (LR) 流水线图，外层浏览器 CSS 设置的 `max-width: 100%` 会按比例将其极其严重地缩小（例如从 4000px 缩放到 1000px）。这种缩小是**物理缩小**，导致原本 30px 的字号在屏幕上变成了 8px。
-*   **对策**：触发了“全局 30px 底线字号约束”。所有文档必须在全局 `mermaid.initialize` 中定死 `fontSize: '30px'`。如果极长的横向流水线在此设定下被严重物理缩小，**必须**将其折叠为**多行横向布局 (TB 嵌套 LR 子图)**。物理宽度减半后，被缩小的比例就会大幅下降，大字号得以保全。
+*   **原因**：仅仅在 Mermaid 中设置 `fontSize: 30px` 是不够的，因为 Mermaid 默认带有响应式设计。如果这是一张极长的横向流水线图，它的物理宽度会远超屏幕。此时 Mermaid 默认注入的 `width="100%"` 会被外层 CSS 的 `max-width: 100%` 强行约束，将一整张 4000px 的图强制按比例“压缩”到屏幕内（如 1000px）。这种等比例物理缩小会导致原本 30px 的字号在屏幕上看起来变成了 8px。
+*   **对策（彻底解决）**：必须在全局初始化中加入核心指令：`mermaid.initialize({ useMaxWidth: false })`！这会彻底关闭 Mermaid 的响应式自适应缩小功能。同时在 CSS 中配合 `.mermaid svg { min-width: 100% !important; max-width: none !important; }`，允许图表横向溢出屏幕并产生滚动条。只有允许图表尺寸突破屏幕边界，才能真正在物理上保全 30px 的震撼大字号！
 
 ### 陷阱二：图表字号依然偏小，且左右存在极其巨大的白色无效间距
 *   **原因**：图表本身节点较少，Mermaid 算出的 SVG 物理宽度没有达到屏幕宽度。在只有 `max-width: 100%` 的情况下，SVG 保持了原尺寸并居中，没有撑满全屏，导致出现巨大的白边，错失了放大字号的良机。
