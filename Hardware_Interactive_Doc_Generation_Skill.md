@@ -5,7 +5,7 @@
 ## 1. 核心设计理念 (Core Philosophy)
 *   **摒弃静态文档**：不再使用干瘪的 Markdown 或 PDF，而是构建拥有左侧全局导航（Sidebar）和右侧内容区（Content Pane）的单页面 Web 应用（SPA）。
 *   **极致的极客美学**：采用类似顶级开发者文档（如 Stripe, Tailwind）的视觉规范。深色顶栏、玻璃拟态（Glassmorphism）吸顶导航、高对比度语法高亮。
-*   **原生 EDA 级图表**：不依赖外部低清图片，全量使用原生 SVG、HTML/CSS 渲染的 Gantt 图以及调优后的 Mermaid 图表，确保在 4K 屏幕下依然无限放大不失真。
+*   **原生 EDA 级图表**：不依赖外部低清图片，使用原生 SVG、HTML/CSS 渲染的 Gantt 图、Python + Graphviz 生成的架构图（复杂场景）以及 Mermaid 内联图表（简单场景），确保在 4K 屏幕下依然无限放大不失真。
 *   **极致图文并茂 (Visual-First Strategy)**：技术原理的解释绝不能是干瘪的纯文本。**强制约束：每一段核心逻辑或算法思想的文字说明，都必须配有一张精心设计的可视化图表（Diagram），并附带对应的中文算法步骤流程（Algorithm Steps）**，做到“文字释义 + 架构图表 + 中文算法步骤”三位一体，让读者能够瞬间建立直观且深刻的理解。不建议使用纯代码语法的伪代码，应使用自然语言与流程图结合的方式表达清楚。
 
 ## 2. UI 框架与排版规范 (UI & Layout Guidelines)
@@ -32,29 +32,26 @@
 *   **解决方案**：使用 `div` 栅格拼接出来的原生甘特图（Gantt Chart）。
 *   **结构**：左侧固定表头（信号名/模块名），右侧为横向可滚动的周期网格。通过精准计算 `width` 和 `left` 偏移量来绘制彩色 Block，完美表达硬件加法器复用、流水线 Bubble、握手等待等精细时序。
 
-### 3.3 模块层级与状态机 (Mermaid.js)
-*   使用 Mermaid 绘制模块架构树，但默认样式极度紧凑。
-*   **强制调优**：
-    *   在图表开头必须注入配置项：`%%{init: {'theme': 'base', 'flowchart': {'nodeSpacing': 80, 'rankSpacing': 150, 'curve': 'bumpX'}}}%%`。拉大间距并使用平滑贝塞尔曲线。
-    *   同样应用 SVG 防压缩规则，设置 `min-width: 1200px !important` 和外层容器的 `justify-content: flex-start`，确保图表庞大且舒展。
+### 3.3 图表工具选择决策（Mermaid vs Python + Graphviz）
 
-### 3.4 Mermaid 陷阱规避与排版进阶策略 (Mermaid Traps & Advanced Layouts)
-在通过 Mermaid 绘制复杂硬件流水线时，极易踩中词法解析器崩溃或布局失控的雷区，必须严格遵守以下排版与语法纪律：
-*   **致命陷阱：Syntax error in text (特殊字符引发的渲染崩溃)**：
-    *   **痛点**：当节点文本或子图 (subgraph) 标题中出现空格、括号 `()`、冒号 `:`、斜杠 `/`、破折号 `-` 或 HTML 换行符 `<br>` 时，会导致 Mermaid (尤其是 10.x 版本) 解析引擎直接崩溃，弹出炸弹图标。
-    *   **强制规避**：**必须**为所有带文字的节点和子图标题加上**双引号 `""`** 进行包裹转义。例如：错误写法 `A[文本(包含特殊)]` / `subgraph S1 [带 空格 标题]`，**正确写法** `A["文本(包含特殊)"]` / `subgraph S1 ["带 空格 标题"]`。
-*   **排版进阶 1：消除多子图垂直留白与文字遮挡 (Row-by-Row 水平流)**：
-    *   **痛点2：排版重叠与穿模遮挡 (Element Occlusion)**：当为了缩小图表物理宽度而极端压缩 `nodeSpacing` 和 `rankSpacing`（如设置到 20 左右）时，如果此时配合了巨大的 `fontSize`（如 28px/32px），Mermaid 的排版引擎会因为安全裕度不足，导致连线直接穿透文本、子图标题被跨图连线腰斩、节点框相互挤压重叠。此外，在 `subgraph` 内部去声明一条连接到外部节点的线，也会引发严重的连线穿模。
-    *   **破局约束 (Anti-Occlusion Rules)**：
-        1. **安全间距底线**：当使用 28px 以上的超大字号时，`nodeSpacing` 和 `rankSpacing` **绝对不得低于 40**（推荐 40~60 之间），必须给引擎留足走线空间。
-        2. **跨图连线全局声明**：**跨越不同 `subgraph` 之间的节点连线（例如 `A --> B`），必须写在所有 `subgraph` 结构体定义的外部（即全局最外层）**。严禁在一个 `subgraph` 内部写出指向另一个 `subgraph` 内部节点的连线逻辑，这是彻底消灭“连线腰斩标题”等穿模现象的黄金法则。
-    *   **解决方案 (外竖内横隔离法 + 规范化连线)**：
-        1. 外层使用 `flowchart TB`，每个 `subgraph` 内部使用 `direction LR`。
-        2. **最核心一步**：绝不能让连线跨越子图内部的节点！应将跨图的依赖线连在外部大框上（例如 `Row1 -.-> Row2`），彻底切断跨图干涉，完美实现上下双行、内部横向展开。
-        3. **防止遮挡**：跨大框的带字连线，**强制要求使用点阵文字语法** `Row1 -. "说明文字" .-> Row2`，绝对禁止使用 `|文字|` 语法，这样能最大程度促使布局引擎分配合理的水平留白，避免元素遮挡。
-*   **排版进阶 2：并排对比面板 (Side-by-Side Columns)**：
-    *   **需求**：需要将两种流水线架构（如全串行 vs MD并发）作为两个垂直的长面板，**左右并排**放置以缩小垂直纵深。
-    *   **解决方案 (外横内竖法)**：外层使用 `flowchart LR` 将两大赛道左右并排铺开，而在每个 `subgraph` 内部强制使用 `direction TD` 让具体步骤从上往下流转。由此得到两个优雅的并肩长列。
+在绘制架构图时，根据图表复杂度选择合适的工具：
+
+| 图表类型 | 推荐工具 | 判断标准 |
+|---------|---------|--------|
+| 简单线性流程（节点数 ≤ 5、无分支） | **Mermaid** | 直接写在 HTML 中，零构建成本 |
+| 简单状态机、序列图 | **Mermaid** | Mermaid 对这类图的支持非常好 |
+| 多分支流水线、RDO/IPD 环路 | **Python + Graphviz** | 需要精确控制布局和连线路由 |
+| 节点数 > 5 且有复杂连线 | **Python + Graphviz** | Mermaid 布局引擎在此场景下不可控 |
+
+**核心原则：如果你发现自己在 Mermaid 上需要写 CSS hack 或排版补丁来修复布局，那就说明这张图应该交给 Python + Graphviz。**
+
+#### Mermaid 简单用法（仅限简单图表）
+*   直接在 HTML 中使用 `.mermaid` 容器内联书写
+*   节点文本中包含特殊字符时，必须用双引号包裹
+*   下方必须紧跟 `.diagram-caption` 图注
+
+#### Python + Graphviz 用法（复杂图表）
+*   详见本文档末尾的《Python + Graphviz 架构图生成技能指南》
 
 ## 4. 硬件代码与高亮 (RTL Code & Syntax Highlighting)
 *   **引擎**：集成 `highlight.js`，并必须显式加载 `verilog.min.js` 语言包。
@@ -124,15 +121,16 @@
 *   **`.highlight` (核心知识/痛点提示)**：浅色背景（如 `#e3f2fd`），配合左侧加粗边框，用于解释某个协议或算法的基础知识。
 *   **`.success` (我们的解决方案/突破口)**：淡绿色背景（如 `#e8f5e9`），配合深绿边框，用于强势展示 C-Model 或硬件是如何解决上述痛点的。
 
-## 4. Mermaid 图表与图注 (Mermaid & Captions)
-*   **ESM 模块化加载**：统一采用现代化的 ES6 模块导入 Mermaid 库：
+## 4. 图表与图注 (Diagrams & Captions)
+*   **简单图表 (Mermaid)**：采用 ES6 模块导入 Mermaid 库，仅用于简单的线性流程图和状态机：
     ```html
     <script type="module">
       import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
       mermaid.initialize({ startOnLoad: true, theme: 'default' });
     </script>
     ```
-*   **居中排版与图注**：包裹在 `.mermaid` 容器内并居中显示，下方**必须**紧跟一段 `.diagram-caption` 的文字说明，交代该图表的核心意图。
+*   **复杂图表 (Python + Graphviz)**：使用 `<img src="assets/diagram_X.svg">` 嵌入预生成的 SVG，样式为 `max-width: 100%; height: auto;`
+*   **图注规范**：所有图表下方**必须**紧跟 `.diagram-caption` 说明，交代该图表的核心意图。
 
 ## 5. 自动目录与双导航联动 (Auto TOC & Dual Navigation)
 这是标准模板的核心逻辑灵魂，**绝不手动编写目录或链接**，全依赖 Vanilla JS 自动扫描与状态同步：
@@ -330,23 +328,20 @@
   ```
   通过定义画布的物理长宽比 (`viewBox`)，并将其渲染宽度设置为 `100%`。无论容器被压缩到多小，SVG 都会完美按比例缩放，永远不会越界产生滚动条。
 
-## 2. Mermaid 层级架构图：方向与拉伸控制 (Orientation & Auto-Stretch)
+## 2. Python + Graphviz 生成的架构图：自适应嵌入
 
-**问题场景**：当使用 Mermaid 绘制含有大量叶子节点（如 8 个并行模块）的架构树时，由于叶子节点横向排列，导致图表物理宽度极宽。
+对于复杂的硬件流水线图和多分支架构图，使用 Python + Graphviz 生成 SVG 后，通过 `<img>` 标签嵌入 HTML：
 
-**Skill 解决方案**：
-* **善用横向延展 (graph LR)**：
-  千万不要对宽树使用 `graph TD`（自上而下）。将图表方向改为 `graph LR`（自左向右）。这样树的深度决定了它的横向宽度，而架构图的深度通常较浅（如 3 层），从而使得图表本身变得极其紧凑。
-* **CSS 强行拉伸满屏**：
-  Mermaid 默认渲染出的 SVG 在满足其内置计算后就不会继续放大。为了让它“尽可能大”，必须在全局 CSS 中注入强制拉伸指令：
-  ```css
-  /* 强制所有 Mermaid 图表撑满可用宽度的 100% */
-  .mermaid svg { width: 100% !important; height: auto !important; max-width: none !important; }
-  ```
-  由于它是横向排版（极度收敛），结合这行拉伸代码，图表就会如同气球一样完美膨胀到刚好铺满屏幕，里面的文字会被等比例放大，变得无比清晰硕大，且恰好不产生滚动条！
+```html
+<div style="text-align: center;">
+    <img src="assets/diagram_X.svg" style="max-width: 100%; height: auto;">
+</div>
+```
 
-## 3. 巨型矩阵表格：动态降维打击 (Dynamic Scaling for Matrices)
-
+**核心要点**：
+* 使用 `max-width: 100%` 让 SVG 自适应缩放，绝不产生滚动条
+* 通过压缩 Graphviz 节点间距和缩短标签来提升视觉字号，而不是盲目增大 fontsize
+* 详细的 Graphviz 排版参数和避坑指南见本文档末尾的《Python + Graphviz 架构图生成技能指南》
 **问题场景**：硬件算法（如 VVC）中常有 $32 \times 32$ 乃至 $64 \times 64$ 的巨大参数矩阵（如 DCT 系数矩阵）。如果按常规表格渲染，32 列数据必定会撑爆任何标准网页，出现冗长的横向滚动条。
 
 **Skill 解决方案**：
