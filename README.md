@@ -8,16 +8,13 @@ If you are a hardware architect or RTL designer looking to transition from stati
 
 Here are the core techniques documented in this repository:
 
-### 🎨 1. [Mermaid Whitespace Optimization Skill](mermaid_whitespace_optimization_skill.md)
-A design constraint guide on minimizing diagram whitespace. Learn why horizontal (`LR`) flowchart rendering is superior to vertical (`TD`) stacking for wide-screen hardware documentation to maintain a "zero-drag" UI.
+### 📐 1. [Hardware Interactive Doc Generation Skill](Hardware_Interactive_Doc_Generation_Skill.md)
+This comprehensive guide covers everything needed to build modern hardware design dashboards:
+*   **Interactive HTML Dashboard Standard**: Transforming static specifications into interactive, responsive, web-based SPA documentation with auto-TOC and dual navigation.
+*   **Hardware Diagram Responsive Design**: Mastering auto-adapting SVG graphics, horizontal Mermaid flows, and dynamic scaling for large matrices to guarantee zero horizontal scrollbars.
+*   **Python + Graphviz Architecture Diagrams**: The definitive guide to drawing complex hardware pipelines (e.g., RDO/IPD loops) using native SVG generation to eliminate Mermaid's layout limitations.
 
-### 📐 2. [Hardware Diagram Responsive Design Skill](hardware_diagram_design_skill.md)
-Master the art of the "100% SVG stretch", auto-adapting Mermaid graph flows (`LR` vs `TD`), and dynamic mathematical scaling for giant $32\times32$ Matrix Tables to guarantee zero horizontal scrollbars on any viewport.
-
-### 🧠 2. [Hardware Design Doc Generation Skill](Hardware_Design_Doc_Generation_Skill.md)
-The foundational guide on how we transform static Word/Excel specifications into interactive HTML dashboards. Learn how to parse complex hardware specifications using Python, BeautifulSoup, and Mammoth.
-
-### 🚀 3. [Git Documentation Deployment Skill](Git_Documentation_Deployment_Skill.md)
+### 🚀 2. [Git Documentation Deployment Skill](Git_Documentation_Deployment_Skill.md)
 A guide to the "Git Index Decoupling" method. Learn how to maintain a chaotic local engineering workspace (full of `.py`, `.xlsx`, `.docx`) while deploying an absolutely pristine, HTML-only repository to GitHub Pages using advanced `.gitignore` whitelists.
 
 ---
