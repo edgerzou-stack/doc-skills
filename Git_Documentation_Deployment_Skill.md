@@ -65,5 +65,19 @@ git commit -m "chore: only track html assets for clean web distribution"
 ```
 这样一来，别人拿到你的 GitHub Repo 地址时，第一眼看到的不是枯燥的文件树，而是直达各类精美排版文档的绿色传送门。
 
+## 4. 自动化部署与权限绕过陷阱 (Git Automation Auth Pitfalls)
+
+**问题场景**：在编写自动化脚本尝试将 HTML 文档同步到 GitHub 时（尤其在 AI 辅助/CI沙盒环境中），`gh repo clone` 或 `git push` 会瞬间失败并抛出 `HTTP 401: Bad credentials`，连输入密码的弹窗都没有出现。
+
+**底层原因**：现代沙盒环境中，系统往往会静默注入一个预设的 `GITHUB_TOKEN` 环境变量。Git 客户端会优先抓取这个无效的 Token 进行鉴权，从而直接跳过操作系统的原生钥匙串（Keychain）验证，导致瞬间秒杀。
+
+**Skill 解决方案：剥离不信任环境**
+在任何涉及 GitHub 原生交互的自动化脚本中，如果希望利用本机的 Keychain 鉴权，必须使用 subshell 显式注销幽灵变量，强行唤起操作系统的原生安全弹窗：
+```bash
+# 必须通过 unset 抹除预设 Token，逼迫 Git 走本地钥匙串
+( unset GITHUB_TOKEN && git push )
+```
+当触发操作系统的指纹或密码验证弹窗时，将确认权交还给物理机前的人类用户。这是最安全且稳定的混合自动化鉴权流派。
+
 ## 总结
 这份部署流，彻底斩断了“工程产出环境”与“最终用户阅读环境”的耦合。以后所有的文档库都可以遵从这一标准套路：**本地狂野开发 -> 脚本一键生成 HTML -> 白名单过滤提交 -> README 导航引流**，这不仅体现了极客的代码洁癖，也极大降低了团队内部的沟通与阅览成本。
