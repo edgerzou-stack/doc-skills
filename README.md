@@ -17,5 +17,8 @@ This comprehensive guide covers everything needed to build modern hardware desig
 ### 🚀 2. [Git Documentation Deployment Skill](Git_Documentation_Deployment_Skill.md)
 A guide to the "Git Index Decoupling" method. Learn how to maintain a chaotic local engineering workspace (full of `.py`, `.xlsx`, `.docx`) while deploying an absolutely pristine, HTML-only repository to GitHub Pages using advanced `.gitignore` whitelists.
 
+### 🧠 3. [Hardware-Algorithm Co-design Skill](Hardware_Algorithm_CoDesign_Skill.md)
+A guide focusing on the necessary trade-offs between hardware constraints and algorithm integrity. Features practical examples of "Asymmetric Bypass Architecture" (e.g. Luma-Chroma RDOQ Bypass) which optimize pipeline latency and throughput while guaranteeing zero codec mismatch.
+
 ---
 *Empowering Hardware Engineers with Modern Web UI/UX.*
