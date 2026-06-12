@@ -20,5 +20,8 @@ A guide to the "Git Index Decoupling" method. Learn how to maintain a chaotic lo
 ### 🧠 3. [Hardware-Algorithm Co-design Skill](Hardware_Algorithm_CoDesign_Skill.md)
 A guide focusing on the necessary trade-offs between hardware constraints and algorithm integrity. Features practical examples of "Asymmetric Bypass Architecture" (e.g. Luma-Chroma RDOQ Bypass) which optimize pipeline latency and throughput while guaranteeing zero codec mismatch.
 
+### 🎯 4. [C-Model Strict Alignment Skill](cmodel_strict_alignment_skill.md)
+A critical rulebook for maintaining absolute technical precision when describing hardware behaviors. Learn how to avoid generalized assumptions, trace variable physical meanings, map exact execution timelines, and utilize interactive visualizations (like pixel-level scanning animations) to explain complex RDO logic via economic ROI analogies rather than dry mathematical formulas.
+
 ---
 *Empowering Hardware Engineers with Modern Web UI/UX.*
