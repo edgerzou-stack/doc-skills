@@ -87,12 +87,54 @@
     *   **平滑跳转**：为 TOC 链接绑定 `click` 事件并调用 `scrollTo({ behavior: 'smooth' })`。
     *   **滚动监听 (Scroll Tracking)**：监听右侧主内容的 `scroll` 事件，动态计算当前到达的标题位置，实时高亮左侧 TOC 中的对应链接 (`.active` 样式)。
 
-### 6.1 TOC 与 `.algorithm-steps` 盒子的配合（RDOQ 类文档必看）
+### 6.1 TOC 与 `.algorithm-steps` 盒子的配合
 
-*   **章节 `h3` 必须在盒子外**：若 `1.1 / 1.2 / 1.3` 写在 `.algorithm-steps` 内部，标准选择器 `.container h3:not(.algorithm-steps h3)` 会**漏掉整章**，目录与正文严重错位。
+*   **章节 `h3` 必须在盒子外**：若 `1.1 / 1.2 / 1.3` 写在 `.algorithm-steps` 内部，选择器 `.container h3:not(.algorithm-steps h3)` 会**漏掉整章**，目录与正文严重错位。
 *   **盒子内用 `h4`**：示例子块（如「整体判决示例」「候选 Level 产生」）用 `<h4>`，避免与节号 `h3` 竞争 TOC。
-*   **卡片标题禁止重复节号**：紫色卡片头写「整体判决示例」，不写「1.1 整体判决示例」。
-*   **RDOQ 专用编排**：见 [RDOQ_Algorithm_Dashboard_Doc_Skill.md](RDOQ_Algorithm_Dashboard_Doc_Skill.md)。
+*   **卡片标题禁止重复节号**：紫色卡片头写「整体判决示例」，不写「1.1 xxx」。
+
+## 9. 算法原理章编排模板（实战：RDOQ Dashboard）
+
+适用于「算法原理 + 硬件优化」双章结构。参考成品：[rdoq_hardware_dashboard.html](https://edgerzou-stack.github.io/rdo-architecture/html/rdoq_hardware_dashboard.html)。
+
+### 9.1 第一章三大块（禁止按扫描/CABAC 平铺）
+
+| 节号 | 职责 |
+|------|------|
+| **1.1** 整体过程与原理 | 扫描、数据冒险、候选 Level、**整体判决示例**、Cost 公式桥 |
+| **1.2** Dcost 的计算 | 反量化误差、Parseval、定点式、配图 |
+| **1.3** Bincost 的计算 | CABAC 四步链路、ctxInc、Context_Array、Entropy_LUT |
+
+1.1 末尾「承上启下」须同时含概念式 `Cost = Dcost + λ×Bincost` 与定点图 `rdoq_formula.png`。
+
+### 9.2 内容归类
+
+| 内容 | 放哪里 | 禁止 |
+|------|--------|------|
+| 决策树（D+R 判决） | 1.1 | 1.3 末尾 |
+| Cost 定点公式 | 1.1 | 1.3 末尾 |
+| Dcost / Parseval 图 | 1.2 | 1.1 / 1.3 |
+| CABAC 四步推演 | 1.3 | 1.1 |
+| Entropy_LUT 建表公式 | 1.3 图下文字 | 叠在曲线图上 |
+
+判断法：Cost 拔河 → 1.1；系数域 SSE → 1.2；CABAC 上下文 → 1.3。
+
+### 9.3 图表 vs 正文
+
+*   **曲线图**（Entropy LUT）：图只画形态，α/P_LPS/LUT 公式放图下。
+*   **决策树**（Graphviz）：保留 D/R 数值节点；粗糙 Level=3 列表删掉。
+*   **配图脚本**（本地 `.py`，不入 Git）：`draw_decision_tree.py`、`draw_dcost.py`、`draw_entropy_lut.py`、`draw_formula.py` → 复制 PNG 到 `html/` 再提交。
+
+### 9.4 重构检查清单
+
+```
+- [ ] 第一章仅 3 个 h3：1.1 / 1.2 / 1.3
+- [ ] 1.1：决策树 + Cost 公式，卡片无重复节号
+- [ ] 1.2：rdoq_dcost.png
+- [ ] 1.3：四步推演完整，无 Level=3 粗糙示例
+- [ ] Entropy_LUT 图下含建表三步
+- [ ] div 开闭平衡；README 与章节结构一致
+```
 
 ## 7. 核心突破机制的视觉强调 (Critical Mechanism Highlighting)
 *   **痛点与突破口分离**：对于架构中最核心的“作弊/解耦”机制（例如：为了流水线解耦，强行使用**原始像素**替代**重建像素**来进行模式粗选），这种颠覆常规理论的突破点，必须与普通的说明文字拉开视觉差距。

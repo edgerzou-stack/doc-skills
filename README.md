@@ -1,33 +1,77 @@
-# 🛠️ Doc Skills - Hardware Document Generation & Deployment
+# Doc Skills — 硬件交互式文档生成与部署
 
-Welcome to the **Doc Skills** repository! This repository serves as a centralized knowledge base for the frontend, visualization, and deployment techniques used to build modern, interactive web-based hardware specifications.
+面向硬件架构师 / RTL 工程师：从 Word/Excel 静态文档，迁移到 **零横向滚动、Git 版本化、可交互** 的 HTML Dashboard。
 
-If you are a hardware architect or RTL designer looking to transition from static Word/Excel documents to zero-drag, auto-scaling, and interactive Git-versioned HTML pages, this is the place to start.
-
-## 📖 Available Skill Guides
-
-Here are the core techniques documented in this repository:
-
-### 📐 1. [Hardware Interactive Doc Generation Skill](Hardware_Interactive_Doc_Generation_Skill.md)
-This comprehensive guide covers everything needed to build modern hardware design dashboards:
-*   **Interactive HTML Dashboard Standard**: Transforming static specifications into interactive, responsive, web-based SPA documentation with auto-TOC and dual navigation.
-*   **Hardware Diagram Responsive Design**: Mastering auto-adapting SVG graphics, horizontal Mermaid flows, and dynamic scaling for large matrices to guarantee zero horizontal scrollbars.
-*   **Python + Graphviz Architecture Diagrams**: The definitive guide to drawing complex hardware pipelines (e.g., RDO/IPD loops) using native SVG generation to eliminate Mermaid's layout limitations.
-
-### 🚀 2. [Git Documentation Deployment Skill](Git_Documentation_Deployment_Skill.md)
-A guide to the "Git Index Decoupling" method. Learn how to maintain a chaotic local engineering workspace (full of `.py`, `.xlsx`, `.docx`) while deploying an absolutely pristine, HTML-only repository to GitHub Pages using advanced `.gitignore` whitelists.
-
-### 🧠 3. [Hardware-Algorithm Co-design Skill](Hardware_Algorithm_CoDesign_Skill.md)
-A guide focusing on the necessary trade-offs between hardware constraints and algorithm integrity. Features practical examples of "Asymmetric Bypass Architecture" (e.g. Luma-Chroma RDOQ Bypass) which optimize pipeline latency and throughput while guaranteeing zero codec mismatch.
-
-### 🎯 4. [C-Model Strict Alignment Skill](cmodel_strict_alignment_skill.md)
-A critical rulebook for maintaining absolute technical precision when describing hardware behaviors. Learn how to avoid generalized assumptions, trace variable physical meanings, map exact execution timelines, and utilize interactive visualizations (like pixel-level scanning animations) to explain complex RDO logic via economic ROI analogies rather than dry mathematical formulas.
-
-### ⚙️ 5. [Hardware Dynamic State Simulation & Math Rendering Skill](Hardware_Dynamic_State_Simulation_Skill.md)
-A focused guide on substituting static, hard-to-read C-Model code snippets with **Dynamic Interactive Widgets**. Learn how to build Dual-Mode (Manual & Auto-play) state machines, map spatial arrays to HTML Grid/Flexbox, use JS to dynamically update natural language explanations, and natively render complex theoretical fixed-point hardware math using MathJax LaTeX.
-
-### 🧮 6. [RDOQ Algorithm Dashboard Doc Skill](RDOQ_Algorithm_Dashboard_Doc_Skill.md)
-A specialized guide distilled from the **RDOQ Hardware Dashboard** (`rdoq_hardware_dashboard.html`). Covers the mandatory **three-part Chapter 1 layout** (1.1 Overall Process → 1.2 Dcost → 1.3 Bincost), TOC/heading rules, image-vs-text separation (Entropy LUT formulas below chart, decision tree keeps detail), CABAC four-step worked example template, and deployment checklist. Use when authoring or refactoring RDOQ algorithm + hardware optimization interactive docs.
+本仓库按 **一条工作流、四类能力** 组织，不再为单个模块（如 RDOQ）单独拆 Skill 文件。
 
 ---
+
+## 推荐工作流
+
+```
+本地研发（.py / .docx / C-Model 对照）
+    → 生成 HTML + PNG（Interactive Doc Skill）
+    → 内容精度与 C-Model 对齐（Strict Alignment Skill）
+    → 算法-硬件妥协写入第二章（Co-design Skill）
+    → 白名单 Git 推送 GitHub Pages（Deployment Skill）
+```
+
+---
+
+## Skill 索引（4 份）
+
+### 1. [Hardware Interactive Doc Generation Skill](Hardware_Interactive_Doc_Generation_Skill.md)
+
+**文档怎么写、怎么排、怎么画。**
+
+| 能力块 | 内容 |
+|--------|------|
+| Dashboard 框架 | Sidebar + Top Nav + 自动 TOC、色彩与排版 |
+| 图表工具链 | Mermaid / Graphviz / CSS 空间图、甘特时序 |
+| 章节编排 | TOC 与 `.algorithm-steps` 配合、DOM 顺序约束 |
+| **算法原理章模板** | **§9 RDOQ Dashboard 实战**（1.1 整体 / 1.2 Dcost / 1.3 Bincost、内容归类、图/文分工、检查清单） |
+| 动态交互 | 扫描动画、MathJax（详见 Dynamic Simulation Skill 交叉引用） |
+
+### 2. [Git Documentation Deployment Skill](Git_Documentation_Deployment_Skill.md)
+
+**怎么推上 GitHub Pages 且仓库保持干净。**
+
+Git 索引剥离、`gitignore` 白名单（仅 HTML + PNG + README）、README 导航站、鉴权陷阱。
+
+### 3. [Hardware-Algorithm Co-design Skill](Hardware_Algorithm_CoDesign_Skill.md)
+
+**算法章写什么妥协、为什么不会 Mismatch。**
+
+编解码一致性心理包袱、Fast/Slow Loop、Luma-Chroma Bypass、尺寸剪枝等非对称架构。
+
+### 4. [C-Model Strict Alignment Skill](cmodel_strict_alignment_skill.md)
+
+**写什么必须和 C-Model 一字不差。**
+
+拒绝夸张修辞、时序依赖、图注强制、ROI 类比、变量物理意义；**§9 Bincost 四步推演**（ctxInc → m_ucState → LUT → bit 数）。
+
+### 附： [Hardware Dynamic State Simulation Skill](Hardware_Dynamic_State_Simulation_Skill.md)
+
+动态扫描动画、Grid/Flexbox 状态机、MathJax 公式渲染——作为 **Interactive Doc Skill §5 的扩展**，不单独构成一类文档。
+
+---
+
+## 参考成品
+
+| 文档 | 链接 |
+|------|------|
+| 架构总览 | [index.html](https://edgerzou-stack.github.io/rdo-architecture/html/index.html) |
+| RDOQ 算法 + 硬件优化 | [rdoq_hardware_dashboard.html](https://edgerzou-stack.github.io/rdo-architecture/html/rdoq_hardware_dashboard.html) |
+| 流水线顺序与气泡 | [pipeline_comparison_static.html](https://edgerzou-stack.github.io/rdo-architecture/html/pipeline_comparison_static.html) |
+
+源码仓：[edgerzou-stack/rdo-architecture](https://github.com/edgerzou-stack/rdo-architecture)
+
+---
+
+## 给 AI 的指令示例
+
+> 按 **Doc Skills 工作流** 重构 `rdoq_hardware_dashboard.html` 第一章：遵循 Interactive Doc §9 三章结构 + Strict Alignment §9 四步 Bincost；修正 TOC；Entropy_LUT 公式放图下；完成后按 Deployment Skill 推送。
+
+---
+
 *Empowering Hardware Engineers with Modern Web UI/UX.*
