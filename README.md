@@ -26,5 +26,8 @@ A critical rulebook for maintaining absolute technical precision when describing
 ### ⚙️ 5. [Hardware Dynamic State Simulation & Math Rendering Skill](Hardware_Dynamic_State_Simulation_Skill.md)
 A focused guide on substituting static, hard-to-read C-Model code snippets with **Dynamic Interactive Widgets**. Learn how to build Dual-Mode (Manual & Auto-play) state machines, map spatial arrays to HTML Grid/Flexbox, use JS to dynamically update natural language explanations, and natively render complex theoretical fixed-point hardware math using MathJax LaTeX.
 
+### 🧮 6. [RDOQ Algorithm Dashboard Doc Skill](RDOQ_Algorithm_Dashboard_Doc_Skill.md)
+A specialized guide distilled from the **RDOQ Hardware Dashboard** (`rdoq_hardware_dashboard.html`). Covers the mandatory **three-part Chapter 1 layout** (1.1 Overall Process → 1.2 Dcost → 1.3 Bincost), TOC/heading rules, image-vs-text separation (Entropy LUT formulas below chart, decision tree keeps detail), CABAC four-step worked example template, and deployment checklist. Use when authoring or refactoring RDOQ algorithm + hardware optimization interactive docs.
+
 ---
 *Empowering Hardware Engineers with Modern Web UI/UX.*

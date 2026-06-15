@@ -87,6 +87,13 @@
     *   **平滑跳转**：为 TOC 链接绑定 `click` 事件并调用 `scrollTo({ behavior: 'smooth' })`。
     *   **滚动监听 (Scroll Tracking)**：监听右侧主内容的 `scroll` 事件，动态计算当前到达的标题位置，实时高亮左侧 TOC 中的对应链接 (`.active` 样式)。
 
+### 6.1 TOC 与 `.algorithm-steps` 盒子的配合（RDOQ 类文档必看）
+
+*   **章节 `h3` 必须在盒子外**：若 `1.1 / 1.2 / 1.3` 写在 `.algorithm-steps` 内部，标准选择器 `.container h3:not(.algorithm-steps h3)` 会**漏掉整章**，目录与正文严重错位。
+*   **盒子内用 `h4`**：示例子块（如「整体判决示例」「候选 Level 产生」）用 `<h4>`，避免与节号 `h3` 竞争 TOC。
+*   **卡片标题禁止重复节号**：紫色卡片头写「整体判决示例」，不写「1.1 整体判决示例」。
+*   **RDOQ 专用编排**：见 [RDOQ_Algorithm_Dashboard_Doc_Skill.md](RDOQ_Algorithm_Dashboard_Doc_Skill.md)。
+
 ## 7. 核心突破机制的视觉强调 (Critical Mechanism Highlighting)
 *   **痛点与突破口分离**：对于架构中最核心的“作弊/解耦”机制（例如：为了流水线解耦，强行使用**原始像素**替代**重建像素**来进行模式粗选），这种颠覆常规理论的突破点，必须与普通的说明文字拉开视觉差距。
 *   **强制使用预警/强提醒样式 (`.critical-alert`)**：
