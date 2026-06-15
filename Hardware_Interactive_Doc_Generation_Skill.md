@@ -95,6 +95,8 @@
 
 ## 9. 算法原理章编排模板（实战：RDOQ Dashboard）
 
+> 新增其他模块（Deblock、SAO…）的同类附录时，遵循 [Doc_Skills_Organization_Skill.md](Doc_Skills_Organization_Skill.md)——写入本 Skill 的 §N 实战，**禁止**再建 `{Module}_Doc_Skill.md`。
+
 适用于「算法原理 + 硬件优化」双章结构。参考成品：[rdoq_hardware_dashboard.html](https://edgerzou-stack.github.io/rdo-architecture/html/rdoq_hardware_dashboard.html)。
 
 ### 9.1 第一章三大块（禁止按扫描/CABAC 平铺）
