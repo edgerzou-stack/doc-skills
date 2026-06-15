@@ -23,5 +23,8 @@ A guide focusing on the necessary trade-offs between hardware constraints and al
 ### 🎯 4. [C-Model Strict Alignment Skill](cmodel_strict_alignment_skill.md)
 A critical rulebook for maintaining absolute technical precision when describing hardware behaviors. Learn how to avoid generalized assumptions, trace variable physical meanings, map exact execution timelines, and utilize interactive visualizations (like pixel-level scanning animations) to explain complex RDO logic via economic ROI analogies rather than dry mathematical formulas.
 
+### ⚙️ 5. [Hardware Dynamic State Simulation & Math Rendering Skill](Hardware_Dynamic_State_Simulation_Skill.md)
+A focused guide on substituting static, hard-to-read C-Model code snippets with **Dynamic Interactive Widgets**. Learn how to build Dual-Mode (Manual & Auto-play) state machines, map spatial arrays to HTML Grid/Flexbox, use JS to dynamically update natural language explanations, and natively render complex theoretical fixed-point hardware math using MathJax LaTeX.
+
 ---
 *Empowering Hardware Engineers with Modern Web UI/UX.*
