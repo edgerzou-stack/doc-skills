@@ -447,6 +447,7 @@
 | 缺陷 | 具体表现 |
 |------|---------|
 | **DAG 布局引擎失控** | Mermaid 的 `dagre`/`elk` 在横向 (`LR`) 布局中经常产生交叉连线和节点重叠（"穿模现象"） |
+| **特殊字符解析异常** | Mermaid 在前端渲染包含 `&` 等特殊字符的节点时极易发生文本截断或乱码排版错位 |
 | **响应式缩放对抗** | Mermaid 默认注入 `max-width: 100%`，会将 4000px 宽的图强制压缩至屏幕宽度，导致 30px 字号在屏幕上看起来只有 8px |
 | **hack 补丁层层叠加** | 为了对抗缩放，需要 `useMaxWidth: false` + CSS `min-width` + `!important` 等一系列脆弱的 hack，且互相冲突 |
 | **Flexbox 容器陷阱** | 将 Mermaid SVG 放在 `display: flex` 容器中时，`flex-shrink: 1` 会无视所有 CSS 覆写，强行将图压缩 |
