@@ -5,7 +5,7 @@
 ## 1. 核心设计理念 (Core Philosophy)
 *   **摒弃静态文档**：不再使用干瘪的 Markdown 或 PDF，而是构建拥有左侧全局导航（Sidebar）和右侧内容区（Content Pane）的单页面 Web 应用（SPA）。
 *   **极致的极客美学**：采用类似顶级开发者文档（如 Stripe, Tailwind）的视觉规范。深色顶栏、玻璃拟态（Glassmorphism）吸顶导航、高对比度语法高亮。
-*   **原生 EDA 级图表**：不依赖外部低清图片，使用原生 SVG、HTML/CSS 渲染的 Gantt 图、Python + Graphviz 生成的架构图（复杂场景）以及 Mermaid 内联图表（简单场景），确保在 4K 屏幕下依然无限放大不失真。
+*   **原生 EDA 级图表**：不依赖外部低清图片，使用原生 SVG、HTML/CSS 渲染的 Gantt 图以及 Python + Graphviz 生成的架构图，确保在 4K 屏幕下依然无限放大不失真。
 *   **极致图文并茂 (Visual-First Strategy)**：技术原理的解释绝不能是干瘪的纯文本。**强制约束：每一段核心逻辑或算法思想的文字说明，都必须配有一张精心设计的可视化图表（Diagram），并附带对应的中文算法步骤流程（Algorithm Steps）**，做到“文字释义 + 架构图表 + 中文算法步骤”三位一体，让读者能够瞬间建立直观且深刻的理解。不建议使用纯代码语法的伪代码，应使用自然语言与流程图结合的方式表达清楚。
 
 ## 2. UI 框架与排版规范 (UI & Layout Guidelines)
@@ -32,26 +32,18 @@
 *   **解决方案**：使用 `div` 栅格拼接出来的原生甘特图（Gantt Chart）。
 *   **结构**：左侧固定表头（信号名/模块名），右侧为横向可滚动的周期网格。通过精准计算 `width` 和 `left` 偏移量来绘制彩色 Block，完美表达硬件加法器复用、流水线 Bubble、握手等待等精细时序。
 
-### 3.3 图表工具选择决策（Mermaid vs Python + Graphviz vs CSS）
+### 3.3 图表工具选择决策（Python + Graphviz vs CSS）
 
-在绘制架构图时，根据图表复杂度选择合适的工具：
+在绘制架构图时，**全面废弃 Mermaid 引擎**，仅保留以下两种最高质量的绘图手段：
 
 | 图表类型 | 推荐工具 | 判断标准 |
 |---------|---------|--------|
-| 简单线性流程（节点数 ≤ 5、无分支） | **Mermaid** | 直接写在 HTML 中，零构建成本 |
-| 简单状态机、序列图 | **Mermaid** | Mermaid 对这类图的支持非常好 |
-| 多分支流水线、RDO/IPD 环路 | **Python + Graphviz** | 需要精确控制布局和连线路由 |
-| 节点数 > 5 且有复杂连线 | **Python + Graphviz** | Mermaid 布局引擎在此场景下不可控 |
+| 所有流程图、状态机、序列图、架构拓扑 | **Python + Graphviz** | 提供精确的底层渲染控制，无前端响应式压缩对抗，原生 SVG 支持特殊字符完美解析 |
 | **强物理空间依赖、块状拆分架构** | **CSS Native Layout** | 直接用 HTML/CSS 绝对定位/Grid/Flexbox 手绘，展现空间物理坐标与极致颜值 |
 
-**核心原则：如果你发现自己在 Mermaid 上需要写大量 CSS hack 或排版补丁来修复布局，说明应交给 Python+Graphviz；如果你需要表达具有强烈长宽、位置、划分比例的物理空间概念，绝对不要用节点图，直接用 CSS 画图！**
+**核心原则：全面封杀前端动态节点渲染引擎。如果你需要画逻辑流程图，请用 Python 脚本生成静态 SVG；如果你需要表达具有强烈长宽、位置、划分比例的物理空间概念，绝对不要用节点图，直接用 CSS 画图！**
 
-#### Mermaid 简单用法（仅限简单图表）
-*   直接在 HTML 中使用 `.mermaid` 容器内联书写
-*   节点文本中包含特殊字符时，必须用双引号包裹
-*   下方必须紧跟 `.diagram-caption` 图注
-
-#### Python + Graphviz 用法（复杂图表）
+#### Python + Graphviz 用法
 *   详见本文档末尾的《Python + Graphviz 架构图生成技能指南》
 
 ### 3.4 CSS 原生空间排版绘图 (CSS Native Spatial Layouts)
@@ -160,7 +152,7 @@
 
 # 交互式标准 HTML 文档模板规范 (Interactive HTML Dashboard Standard Skill)
 
-本文档定义了目前标准化的单页面交互式 HTML 硬件/架构设计文档规范。它结合了极简侧边栏、顶部胶囊导航、以及深度定制的 Mermaid 原生图表等特性，作为后续生成设计文档的**基准 HTML 框架**。
+本文档定义了目前标准化的单页面交互式 HTML 硬件/架构设计文档规范。它结合了极简侧边栏、顶部胶囊导航等特性，作为后续生成设计文档的**基准 HTML 框架**。
 
 ## 1. 核心架构与布局体系 (Core Layout Architecture)
 标准文档抛弃了流式中心化布局，采用 **“固定侧边栏 (Sidebar) + 独立滚动主内容区 (Main Content) + 内容卡片 (Container)”** 的经典 Dashboard 布局。
@@ -186,14 +178,7 @@
 *   **`.success` (我们的解决方案/突破口)**：淡绿色背景（如 `#e8f5e9`），配合深绿边框，用于强势展示 C-Model 或硬件是如何解决上述痛点的。
 
 ## 4. 图表与图注 (Diagrams & Captions)
-*   **简单图表 (Mermaid)**：采用 ES6 模块导入 Mermaid 库，仅用于简单的线性流程图和状态机：
-    ```html
-    <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-      mermaid.initialize({ startOnLoad: true, theme: 'default' });
-    </script>
-    ```
-*   **复杂图表 (Python + Graphviz)**：使用 `<img src="assets/diagram_X.svg">` 嵌入预生成的 SVG，样式为 `max-width: 100%; height: auto;`
+*   **全部流程图 (Python + Graphviz)**：使用 `<img src="assets/diagram_X.svg">` 嵌入预生成的 SVG，样式为 `max-width: 100%; height: auto; display: block; margin: 20px auto;`。**严禁在前端使用任何动态渲染引擎。**
 *   **图注规范**：所有图表下方**必须**紧跟 `.diagram-caption` 说明，交代该图表的核心意图。
 
 ## 5. 自动目录与双导航联动 (Auto TOC & Dual Navigation)
@@ -216,10 +201,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>硬件架构设计文档标准模板</title>
-    <script type="module">
-      import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-      mermaid.initialize({ startOnLoad: true, theme: 'default' });
-    </script>
     <style>
         :root {
             --primary: #0288d1;
@@ -249,7 +230,6 @@
         .highlight { background-color: #e3f2fd; border-left: 4px solid var(--secondary); padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }
         .success { background-color: #e8f5e9; border-left: 4px solid #2e7d32; padding: 15px; margin: 20px 0; border-radius: 0 4px 4px 0; }
         
-        .mermaid { display: flex; justify-content: center; margin: 30px 0; background: #fafafa; padding: 20px; border: 1px solid #eee; border-radius: 8px; }
         .diagram-caption { text-align: center; color: #7f8c8d; font-size: 0.9em; margin-top: -15px; margin-bottom: 30px; font-style: italic; }
         
         .top-nav { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #e0e0e0; }
@@ -459,8 +439,9 @@
 - **原生 SVG 输出**：生成的 SVG 是纯粹的矢量图，浏览器用 `max-width: 100%` 即可完美自适应
 - **字号与布局解耦**：字号在 Graphviz 内部设置，浏览器缩放时等比例保持，不会被 CSS 覆写
 - **分支路由清晰**：`splines='spline'` 使用贝塞尔曲线自动分离重叠的连线
+- **特殊字符免疫**：后端直接生成矢量路径，无视一切 HTML/JS 转义黑魔法
 
-> **Mermaid 保留场景**：仅限于极简单的线性序列图或状态机（节点数 ≤ 5、无分支）。所有复杂流水线、多分支环路图，一律使用 Python + Graphviz。
+> **全面封杀 Mermaid**：所有流程图、状态机、多分支流水线图，一律使用 Python + Graphviz 生成静态资产。严禁前端引入动态节点引擎。
 
 ---
 
