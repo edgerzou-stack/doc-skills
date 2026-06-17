@@ -8,6 +8,7 @@
 *   **原生 EDA 级图表**：不依赖外部低清图片，使用原生 SVG、HTML/CSS 渲染的 Gantt 图以及 Python + Graphviz 生成的架构图，确保在 4K 屏幕下依然无限放大不失真。
 *   **极致图文并茂 (Visual-First Strategy)**：技术原理的解释绝不能是干瘪的纯文本。**强制约束：每一段核心逻辑或算法思想的文字说明，都必须配有一张精心设计的可视化图表（Diagram），并附带对应的中文算法步骤流程（Algorithm Steps）**，做到“文字释义 + 架构图表 + 中文算法步骤”三位一体，让读者能够瞬间建立直观且深刻的理解。不建议使用纯代码语法的伪代码，应使用自然语言与流程图结合的方式表达清楚。
 *   **无情量化拒绝定性 (Quantitative over Qualitative)**：所有文档的技术原理分析、算法推导、架构决策，必须精准到代码级别的变量名、具体的数学公式和底层硬编码数值。绝不允许泛泛而谈的定性描述（例如“赋予高权重”、“进行平滑衰减”），必须给出无情冷酷的量化事实与推演公式（例如 `weight[3][3] = 12`、`CplxCount *= 0.5`）。
+*   **术语必释 (Terminology Clarification)**：对于任何核心的专业术语或底层缩写（如 Target Picture Size, VBV, CRF, AQ 等），绝对不能生硬地抛给读者。必须在术语首次出现时，通过“💡 术语解析”的形式，用最直白甚至通俗的比喻（如“比特预算/生活费”）将其本质解释清楚，消除读者的认知盲区。
 
 ## 2. UI 框架与排版规范 (UI & Layout Guidelines)
 *   **字体栈 (Typography)**：正文优先使用系统级无衬线字体（如 `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto`），代码和图表标识严格使用等宽字体（`'Roboto Mono', monospace` 或 `Consolas`）。
