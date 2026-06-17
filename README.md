@@ -60,7 +60,8 @@ Welcome to the **Doc Skills** repository.
 | 文档名称 | 访问链接 |
 |------|------|
 | **架构总览** | [index.html](https://edgerzou-stack.github.io/rdo-architecture/html/index.html) |
-| **CABAC Intra/Inter 解析 (静态 SVG)** | [intra_inter_scabac_dashboard.html](https://edgerzou-stack.github.io/rdo-architecture/html/intra_inter_scabac_dashboard.html) |
+| CABAC Intra/Inter 解析 (静态 SVG) | [intra_inter_scabac_dashboard.html](https://edgerzou-stack.github.io/rdo-architecture/html/intra_inter_scabac_dashboard.html) |
+| **码率控制 (RC) 架构与算法演进** | [rate_control_dashboard.html](https://edgerzou-stack.github.io/rdo-architecture/html/rate_control_dashboard.html) |
 | **RDOQ 算法 + 硬件优化** | [rdoq_hardware_dashboard.html](https://edgerzou-stack.github.io/rdo-architecture/html/rdoq_hardware_dashboard.html) |
 | **流水线顺序与气泡** | [pipeline_comparison_static.html](https://edgerzou-stack.github.io/rdo-architecture/html/pipeline_comparison_static.html) |
 
