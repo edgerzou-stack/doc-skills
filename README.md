@@ -53,6 +53,14 @@ Welcome to the **Doc Skills** repository.
 - 时序依赖、图注强制、ROI 类比、变量物理意义溯源。
 - **CABAC 四步推演**：ctxInc → m_ucState → LUT → bit 数。
 
+### 5. [Doc Formatting Skill](Doc_Formatting_Skill.md)
+**专业行文规范与视觉排版避坑。**
+- **客观严谨**：摒弃“死守”、“马赛克”等口语化隐喻，强制使用工业级 Spec 专业术语。
+- **视觉防误触**：严格区分 `<a href>` 超链接与普通内联高亮（拒绝同构下划线），使用浅色背景徽章。
+- **严谨目录**：动态 TOC 必须增加正则过滤（`^\d`），彻底剔除无序号辅助标题。
+- **业务场景前置**：算法推演前必须绑定核心业务场景（如 Live ABR vs VOD CRF），使用双栏对比加深理解。
+- **Graphviz 避坑**：放弃基于 `<b>` 的水平文字计算（底层 Pango Bug），强制改用垂直换行或 `splines=polyline` 规避线条重叠。
+
 ---
 
 ## 🌟 参考成品展示 (Reference Dashboards)
