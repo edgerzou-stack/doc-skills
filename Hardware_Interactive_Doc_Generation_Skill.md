@@ -10,6 +10,7 @@
 *   **无情量化拒绝定性 (Quantitative over Qualitative)**：所有文档的技术原理分析、算法推导、架构决策，必须精准到代码级别的变量名、具体的数学公式和底层硬编码数值。绝不允许泛泛而谈的定性描述（例如“赋予高权重”、“进行平滑衰减”），必须给出无情冷酷的量化事实与推演公式（例如 `weight[3][3] = 12`、`CplxCount *= 0.5`）。
 *   **术语必释且严禁比喻 (Terminology Clarification & No Metaphors)**：对于任何核心的专业术语或底层缩写（如 Target Picture Size, VBV, CRF, AQ 等），必须在术语首次出现时通过“💡 术语解析”的形式将其本质解释清楚。**绝对禁止使用生活化比喻（如“生活费/水池”）**，必须就事论事，使用严谨的工程与数学概念（如“比特预算上限/信道缓冲区字节量”）直击其物理本质，保持硬核的专业性。
 *   **自顶向下与总览先行 (Top-Down & Overview-First Structure)**：强制规定在讲解任何具体的策略（Strategy）或数学公式之前，必须先设立“宏观物理概念总览”章节。必须从最顶层的因果链条切入，清晰交代系统调整的物理本质是什么（例如：什么是 QP Tree，它是如何受 VBV 驱动的），在读者脑海中建立全局概念后，再自顶向下地进行微观推演和局部探究。
+*   **严禁代码直贴 (No Lazy Code Pasting)**：在解释核心底层算法或状态机流转时，绝对不允许直接粘贴未经排版的伪代码或 C 代码片段（如 `targetPicSize = a + b`）。必须使用标准的 **MathJax 数学公式**（如 $\mathcal{T} = \alpha + \beta$），配以严谨的自然语言或伪代码算法描述，且**每一步推演都必须伴随具体的数值沙盘案例（Numeric Example）**来阐明其真实的物理影响。
 
 ## 2. UI 框架与排版规范 (UI & Layout Guidelines)
 *   **字体栈 (Typography)**：正文优先使用系统级无衬线字体（如 `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto`），代码和图表标识严格使用等宽字体（`'Roboto Mono', monospace` 或 `Consolas`）。
